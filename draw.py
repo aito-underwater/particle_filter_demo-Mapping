@@ -16,7 +16,7 @@ turtle.register_shape("tri", ((-3, -2), (0, 3), (3, -2), (0, 0)))
 turtle.speed(0)
 turtle.title("Poor robbie is lost")
 
-UPDATE_EVERY = 0
+UPDATE_EVERY =0
 DRAW_EVERY = 2
 
 class Maze(object):
@@ -33,10 +33,11 @@ class Maze(object):
         for y, line in enumerate(self.maze):
             for x, block in enumerate(line):
                 if block:
-                    nb_y = self.height - y - 1
+                    nb_y = self.height - y  - 1
                     self.blocks.append((x, nb_y))
                     if block == 2:
                         self.beacons.extend(((x, nb_y), (x+1, nb_y), (x, nb_y+1), (x+1, nb_y+1)))
+
 
     def draw(self):
         for x, y in self.blocks:

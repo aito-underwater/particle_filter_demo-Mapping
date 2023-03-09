@@ -8,9 +8,9 @@
 
 from __future__ import absolute_import
 
-import random
-import math
 import bisect
+import math
+import random
 
 from draw import Maze
 
@@ -28,20 +28,142 @@ maze_data = ( ( 2, 0, 1, 0, 0 ),
 # 1 - occupied square
 # 2 - occupied square with a beacon at each corner, detectable by the robot
 
-maze_data = ( ( 1, 1, 0, 0, 2, 0, 0, 0, 0, 1 ),
-              ( 1, 2, 0, 0, 1, 1, 0, 0, 0, 0 ),
-              ( 0, 1, 1, 0, 0, 0, 0, 1, 0, 1 ),
-              ( 0, 0, 0, 0, 1, 0, 0, 1, 1, 2 ),
-              ( 1, 1, 0, 1, 1, 2, 0, 0, 1, 0 ),
-              ( 1, 1, 1, 0, 1, 1, 1, 0, 2, 0 ),
-              ( 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 ),
-              ( 1, 2, 0, 1, 1, 1, 1, 0, 0, 0 ),
-              ( 0, 0, 0, 0, 1, 0, 0, 0, 1, 0 ),
-              ( 0, 0, 1, 0, 0, 2, 1, 1, 1, 0 ))
+# maze_data = ((0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+#              (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+#              (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+#              (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+#              (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+#              (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+#              (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+#              (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+#              (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+#              (0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 
-PARTICLE_COUNT = 2000    # Total number of particles
+maze_data = ((
+             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+             1, 1, 1, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 1),
+             (
+             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+             1, 1, 1, 1))
 
-ROBOT_HAS_COMPASS = True # Does the robot know where north is? If so, it
+MAP = (
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1)
+
+# global constants
+SCREEN_HEIGHT = 480
+SCREEN_WIDTH = SCREEN_HEIGHT * 2
+MAP_SIZE = 20
+MAP_SIZE_ROW = 20
+MAP_SIZE_COL = 40
+TILE_SIZE = int((SCREEN_WIDTH / 2) / MAP_SIZE_COL)
+MAX_DEPTH = int(MAP_SIZE_COL * TILE_SIZE)
+FOV = math.radians(180)  # math.pi / 3
+HALF_FOV = FOV / 2
+CASTED_RAYS = 3
+STEP_ANGLE = FOV / 2  # FOV / CASTED_RAYS
+SCALE = (SCREEN_WIDTH / 2) / CASTED_RAYS
+
+distance = [0, 0, 0]
+target = 1
+
+PARTICLE_COUNT = 3000  # Total number of particles
+
+ROBOT_HAS_COMPASS = True  # Does the robot know where north is? If so, it
+
+
 # makes orientation a lot easier since it knows which direction it is facing.
 # If not -- and that is really fascinating -- the particle filter can work
 # out its heading too, it just takes more particles and more time. Try this
@@ -54,19 +176,31 @@ ROBOT_HAS_COMPASS = True # Does the robot know where north is? If so, it
 def add_noise(level, *coords):
     return [x + random.uniform(-level, level) for x in coords]
 
+
 def add_little_noise(*coords):
     return add_noise(0.02, *coords)
+
 
 def add_some_noise(*coords):
     return add_noise(0.1, *coords)
 
+
 # This is just a gaussian kernel I pulled out of my hat, to transform
 # values near to robbie's measurement => 1, further away => 0
 sigma2 = 0.9 ** 2
+
+
 def w_gauss(a, b):
-    error = a - b
-    g = math.e ** -(error ** 2 / (2 * sigma2))
-    return g
+    error1 = (a[0] - b[0])
+    error2 = (a[1] - b[1])
+    error3 = (a[2] - b[2])
+
+    g1 = (math.e ** -(error1 ** 2 / (2 * sigma2))) / 3
+    g2 = (math.e ** -(error2 ** 2 / (2 * sigma2))) / 3
+    g3 = (math.e ** -(error3 ** 2 / (2 * sigma2))) / 3
+    print(g1 + g2 + g3)
+    return g1 + g2 + g3
+
 
 # ------------------------------------------------------------------------
 def compute_mean_point(particles):
@@ -97,6 +231,7 @@ def compute_mean_point(particles):
 
     return m_x, m_y, m_count > PARTICLE_COUNT * 0.95
 
+
 # ------------------------------------------------------------------------
 class WeightedDistribution(object):
     def __init__(self, state):
@@ -113,6 +248,7 @@ class WeightedDistribution(object):
         except IndexError:
             # Happens when all particles are improbable w=0
             return None
+
 
 # ------------------------------------------------------------------------
 class Particle(object):
@@ -146,13 +282,82 @@ class Particle(object):
         """
         Find distance to nearest beacon.
         """
-        return maze.distance_to_nearest_beacon(*self.xy)
 
+        return maze.distance_to_nearest_beacon(*self.xy)
+        # raycasting algorithm
+
+    def cast_rays(self):
+        # define left most angle of FOV
+        global distance
+        start_angle = math.radians(self.h) - HALF_FOV
+
+        # loop over casted rays
+        for ray in range(CASTED_RAYS):
+            # cast ray step by step
+            for depth in range(MAX_DEPTH):
+                # get ray target coordinates
+                target_x = self.x - math.sin(start_angle) * depth
+                target_y = self.y + math.cos(start_angle) * depth
+
+                # covert target X, Y coordinate to map col, row
+                col = int(target_x / TILE_SIZE)
+                row = int(target_y / TILE_SIZE)
+
+                # calculate map square index
+                square = row * MAP_SIZE_COL + col
+
+                # ray hits the condition
+                if MAP[square] == target:
+                    # highlight wall that has been hit by a casted ray
+                    # pygame.draw.rect(win, (0, 255, 0), (col * TILE_SIZE,
+                    #                                     row * TILE_SIZE,
+                    #                                     TILE_SIZE - 2,
+                    #                                     TILE_SIZE - 2))
+
+                    # draw casted ray
+                    #    pygame.draw.line(win, (255, 255, 0), (player_x, player_y), (target_x, target_y))
+
+                    distance[ray] = ((target_x - self.x) ** 2 + (target_y - self.y) ** 2) ** 0.5
+
+                    # wall shading
+                    color = 255 / (1 + depth * depth * 0.0001)
+
+                    # fix fish eye effect
+                    depth *= math.cos(math.radians(self.h) - start_angle)
+
+                    # calculate wall height
+                    wall_height = 21000 / (depth + 0.0001)
+
+                    # fix stuck at the wall
+                    if wall_height > SCREEN_HEIGHT: wall_height = SCREEN_HEIGHT
+
+                    # draw 3D projection (rectangle by rectangle...)
+                    # pygame.draw.rect(win, (color, color, color), (
+                    #     SCREEN_HEIGHT + ray * SCALE,
+                    #     (SCREEN_HEIGHT / 2) - wall_height / 2,
+                    #     SCALE, wall_height))
+
+                    break
+
+            # increment angle by a single step
+            start_angle += STEP_ANGLE
+
+        return distance
+
+    # def readLidars(self):
+    #     h = self.h
+    #
+    #     r = math.radians(h)
+    #     for i in range(90):
+    #         dx = math.sin(r) * i
+    #         dy = math.cos(r) * i
+    #         print()
+    #     return 0,0,0
     def advance_by(self, speed, checker=None, noisy=False):
         h = self.h
         if noisy:
             speed, h = add_little_noise(speed, h)
-            h += random.uniform(-3, 3) # needs more noise to disperse better
+            h += random.uniform(-3, 3)  # needs more noise to disperse better
         r = math.radians(h)
         dx = math.sin(r) * speed
         dy = math.cos(r) * speed
@@ -164,6 +369,7 @@ class Particle(object):
     def move_by(self, x, y):
         self.x += x
         self.y += y
+
 
 # ------------------------------------------------------------------------
 class Robot(Particle):
@@ -184,7 +390,66 @@ class Robot(Particle):
         it only can measure the distance to the nearest beacon(!)
         and is not very accurate at that too!
         """
+
         return add_little_noise(super(Robot, self).read_sensor(maze))[0]
+
+    # raycasting algorithm
+    def cast_rays(self):
+        # define left most angle of FOV
+        global distance
+        start_angle = math.radians(self.h) - HALF_FOV
+
+        # loop over casted rays
+        for ray in range(CASTED_RAYS):
+            # cast ray step by step
+            for depth in range(MAX_DEPTH):
+                # get ray target coordinates
+                target_x = self.x - math.sin(start_angle) * depth
+                target_y = self.y + math.cos(start_angle) * depth
+
+                # covert target X, Y coordinate to map col, row
+                col = int(target_x / TILE_SIZE)
+                row = int(target_y / TILE_SIZE)
+
+                # calculate map square index
+                square = row * MAP_SIZE_COL + col
+
+                # ray hits the condition
+                if MAP[square] == target:
+                    # highlight wall that has been hit by a casted ray
+                    # pygame.draw.rect(win, (0, 255, 0), (col * TILE_SIZE,
+                    #                                     row * TILE_SIZE,
+                    #                                     TILE_SIZE - 2,
+                    #                                     TILE_SIZE - 2))
+
+                    # draw casted ray
+                    #    pygame.draw.line(win, (255, 255, 0), (player_x, player_y), (target_x, target_y))
+
+                    distance[ray] = ((target_x - self.x) ** 2 + (target_y - self.y) ** 2) ** 0.5
+
+                    # wall shading
+                    color = 255 / (1 + depth * depth * 0.0001)
+
+                    # fix fish eye effect
+                    depth *= math.cos(math.radians(self.h) - start_angle)
+
+                    # calculate wall height
+                    wall_height = 21000 / (depth + 0.0001)
+
+                    # fix stuck at the wall
+                    if wall_height > SCREEN_HEIGHT: wall_height = SCREEN_HEIGHT
+
+                    # draw 3D projection (rectangle by rectangle...)
+                    # pygame.draw.rect(win, (color, color, color), (
+                    #     SCREEN_HEIGHT + ray * SCALE,
+                    #     (SCREEN_HEIGHT / 2) - wall_height / 2,
+                    #     SCALE, wall_height))
+
+                    break
+
+            # increment angle by a single step
+            start_angle += STEP_ANGLE
+        return distance
 
     def move(self, maze):
         """
@@ -193,11 +458,12 @@ class Robot(Particle):
         while True:
             self.step_count += 1
             if self.advance_by(self.speed, noisy=True,
-                checker=lambda r, dx, dy: maze.is_free(r.x+dx, r.y+dy)):
+                               checker=lambda r, dx, dy: maze.is_free(r.x + dx, r.y + dy)):
                 break
             # Bumped into something or too long in same direction,
             # chose random new direction
             self.chose_random_direction()
+
 
 # ------------------------------------------------------------------------
 
@@ -209,14 +475,16 @@ particles = Particle.create_random(PARTICLE_COUNT, world)
 robbie = Robot(world)
 
 while True:
-    # Read robbie's sensor
-    r_d = robbie.read_sensor(world)
 
+    # Read robbie's sensor
+    # r_d = robbie.read_sensor(world)
+    r_d = robbie.cast_rays()
     # Update particle weight according to how good every particle matches
     # robbie's sensor reading
     for p in particles:
         if world.is_free(*p.xy):
-            p_d = p.read_sensor(world)
+            # p_d = p.read_sensor(world)
+            p_d = p.cast_rays()
             p.w = w_gauss(r_d, p_d)
         else:
             p.w = 0
@@ -247,8 +515,8 @@ while True:
             new_particle = Particle.create_random(1, world)[0]
         else:
             new_particle = Particle(p.x, p.y,
-                    heading=robbie.h if ROBOT_HAS_COMPASS else p.h,
-                    noisy=True)
+                                    heading=robbie.h if ROBOT_HAS_COMPASS else p.h,
+                                    noisy=True)
         new_particles.append(new_particle)
 
     particles = new_particles
@@ -261,5 +529,5 @@ while True:
     # Move particles according to my belief of movement (this may
     # be different than the real movement, but it's all I got)
     for p in particles:
-        p.h += d_h # in case robot changed heading, swirl particle heading too
+        p.h += d_h  # in case robot changed heading, swirl particle heading too
         p.advance_by(robbie.speed)
